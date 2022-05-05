@@ -7,6 +7,9 @@ When you pick a word in Wordle, the game responds with 1 of 243 responses.  Ther
 
 At each step, this program figures out the words that will evoke the most entropy from Wordle.  It even tells you how many bits of information you are likely to get from playing the word.
 
+This is the optimal strategy if you assume all the words in the list are equally likely to be the answer. Other people have done similar systems that do not make this assumption:
+[https://github.com/jonhoo/roget](https://github.com/jonhoo/roget)
+
 ## Usage
 
 I usually pick the first word on the list that I think the New York Times might actually use.
