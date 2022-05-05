@@ -1,5 +1,5 @@
 # enwordle
-Using information theory, this is the optimal wordle player.
+Using information theory, this is the optimal wordle player.  It is written in Rust and runs on the command-line.
 
 When you pick a word in Wordle, the game responds with 1 of 243 responses.  There are five spaces and three possible responses for each (not present, wrong place, right place). 5^3 = 243.  You get the most information about the word if each response is equally likely — that is, in the language of information theory, the response has the most possible entropy.
 
@@ -42,10 +42,21 @@ What did wordle return? (0 = not present, 1 = wrong place, 2 = right place)
 	8 drain: 4.36 bits
 	9 aroid: 4.35 bits
 What word did you pick? (0 to quit)
+3
+What did wordle return? (0 = not present, 1 = wrong place, 2 = right place)
+02220
+6 possibilities
+	1 drain: 1.79 bits
+	2 brain: 1.79 bits
+	3 braid: 1.79 bits
+	4 craic: 1.25 bits
+	5 vraic: 1.25 bits
+	6 fraim: 0.65 bits
+What word did you pick? (0 to quit)
 1
 What did wordle return? (0 = not present, 1 = wrong place, 2 = right place)
-22220
-2 possibilities
-	1 brain: 1.00 bits
-	2 braid: 1.00 bits
+02222
+1 possibilities
+	1 brain: 0.00 bits
+No more possibilities
 ```

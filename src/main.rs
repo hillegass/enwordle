@@ -175,6 +175,10 @@ fn main() {
                 let value = buf[i as usize] - ('0' as u8);
                 input_group = 3 * input_group + value;
             }
+            if input_group == (GROUP_COUNT - 1) as Group {
+                println!("Congratulations!");
+                return;
+            }
         }
 
         // Go throught all the possibilities and remove the ones that don't match
