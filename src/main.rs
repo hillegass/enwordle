@@ -16,18 +16,30 @@ type Group = u8;
 // is a number that represents the feedback from Wordle.
 fn group_for_try_target(trying: &Word, target: &Word) -> Group {
     let mut checkword = [0; WORD_LEN];
+    let mut claimword = [false; WORD_LEN];
 
     // Which letters are in the right place?
     for i in 0..WORD_LEN {
-        checkword[i] = 2 * (trying[i] == target[i]) as u8;
+        if target[i] == trying[i] {
+            checkword[i] = 2;
+            claimword[i] = true;
+        }
     }
 
     // Check for letters that are in the wrong place
     for i in 0..WORD_LEN {
         if checkword[i] == 0 {
             let looking_for = trying[i];
-            let search_result = target.iter().position(|&r| r == looking_for);
-            checkword[i] = if search_result.is_none() { 0 } else { 1 }
+            for j in 0..WORD_LEN {
+                if j == i {
+                    continue;
+                }
+                // Found and not already claimed?
+                if looking_for == target[j] && claimword[j] == false {
+                    checkword[i] = 1;
+                    claimword[j] = true;
+                }
+            }
         }
     }
 
