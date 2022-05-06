@@ -4,88 +4,11 @@ use std::fs::File;
 use std::io::*;
 use std::str;
 use std::usize;
+//use enwordle::{WORD_LEN, GROUP_COUNT, Word, Group, groups_for_words, entropy_list};
+use enwordle::*;
 
-const WORD_LEN: usize = 5;
 const WORD_COUNT: usize = 12947;
-const GROUP_COUNT: usize = 243; // 3^5
-type Word = [u8; WORD_LEN];
-type WordIndex = usize;
-type Group = u8;
 
-// If the right answer were target and you input trying, the group
-// is a number that represents the feedback from Wordle.
-fn group_for_try_target(trying: &Word, target: &Word) -> Group {
-    let mut checkword = [0; WORD_LEN];
-    let mut claimword = [false; WORD_LEN];
-
-    // Which letters are in the right place?
-    for i in 0..WORD_LEN {
-        if target[i] == trying[i] {
-            checkword[i] = 2;
-            claimword[i] = true;
-        }
-    }
-
-    // Check for letters that are in the wrong place
-    for i in 0..WORD_LEN {
-        if checkword[i] == 0 {
-            let looking_for = trying[i];
-            for j in 0..WORD_LEN {
-                if j == i {
-                    continue;
-                }
-                // Found and not already claimed?
-                if looking_for == target[j] && claimword[j] == false {
-                    checkword[i] = 1;
-                    claimword[j] = true;
-                }
-            }
-        }
-    }
-
-    // Convert to a number
-    let mut group = 0;
-    for i in 0..WORD_LEN {
-        group = 3 * group + checkword[i];
-    }
-
-    // Return the number
-    group
-}
-
-// Given the table of groups, the indexes of the possible answers, return the index of the answers
-// that will give you the most entropy
-fn entropy_list(groups: &Array2D<u8>, conforming: &Vec<WordIndex>) -> Vec<(WordIndex, f32)> {
-    let list_len = conforming.len();
-    let mut entropy_list = Vec::with_capacity(list_len);
-
-    // Go through all the possibilities
-    for current_word_index in conforming {
-        // Figure out how many remaining possibilities would be in each group
-        let mut group_histogram = [0; GROUP_COUNT];
-        for other_word_index in conforming {
-            let group = groups[(*current_word_index, *other_word_index)];
-            group_histogram[group as usize] += 1;
-        }
-
-        // Use that to compute the entropy
-        let mut entropy = 0.0;
-        for group in 0..GROUP_COUNT {
-            let group_count = group_histogram[group];
-            if group_count > 0 {
-                let p = group_count as f32 / list_len as f32;
-                entropy -= p * p.log2();
-            }
-        }
-        // Save it in the list
-        entropy_list.push((*current_word_index, entropy));
-    }
-    // Sort the list by entropy (descending order)
-    entropy_list.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-
-    // Return the list
-    entropy_list
-}
 
 fn main() {
     // Read in the word list
@@ -102,8 +25,11 @@ fn main() {
     // Make a table that holds the feedback from Wordle for every possible pair of words
     let mut groups = Array2D::filled_with(0 as u8, word_count, word_count);
     for i in 0..word_count {
-        for j in 0..word_count {
-            groups[(i, j)] = group_for_try_target(&words[i], &words[j]);
+        groups[(i, i)] = (GROUP_COUNT - 1) as Group;
+        for j in i+1..word_count {
+            let (groupa, groupb) = groups_for_words(&words[i], &words[j]);
+            groups[(i, j)] = groupa;
+            groups[(j, i)] = groupb;
         }
     }
 
@@ -169,7 +95,7 @@ fn main() {
 
         let mut input_group: Group = (GROUP_COUNT - 1) as Group;
         while input_group == (GROUP_COUNT - 1) as Group {
-            println!("What did wordle return? (0 = not present, 1 = wrong place, 2 = right place)");
+            println!("What did wordle return? (0=not present, 1=wrong place, 2=right place)");
             let mut input_string = String::new();
             stdin()
                 .read_line(&mut input_string)
